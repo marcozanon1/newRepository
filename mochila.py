@@ -1,6 +1,5 @@
 import random
 
-
 # Definir função de aptidão (fitness)
 def fitness(cromossomo, pesos_e_valores, peso_maximo):
     valor_total = 0
@@ -13,21 +12,17 @@ def fitness(cromossomo, pesos_e_valores, peso_maximo):
         return 0  # Penalidade por exceder o peso
     return valor_total
 
-
 # Gerar cromossomos (população inicial)
 def gerar_cromossomo(tamanho):
     return [random.randint(0, 1) for _ in range(tamanho)]
 
-
 def gerar_populacao(tamanho_populacao, tamanho_cromossomo):
     return [gerar_cromossomo(tamanho_cromossomo) for _ in range(tamanho_populacao)]
-
 
 # Seleção por torneio
 def selecao_torneio(populacao, fitnesses, k=3):
     selecionados = random.sample(list(zip(populacao, fitnesses)), k)
     return max(selecionados, key=lambda x: x[1])[0]
-
 
 # Crossover (ponto único)
 def crossover(pai1, pai2):
@@ -36,16 +31,15 @@ def crossover(pai1, pai2):
     filho2 = pai2[:ponto] + pai1[ponto:]
     return filho1, filho2
 
-
 # Mutação
 def mutacao(cromossomo, taxa_mutacao=0.01):
     for i in range(len(cromossomo)):
         if random.random() < taxa_mutacao:
             cromossomo[i] = 1 - cromossomo[i]  # Alternar entre 0 e 1
 
-
 # Algoritmo genético
 def algoritmo_genetico(pesos_e_valores, peso_maximo, numero_de_cromossomos, geracoes):
+    random.seed(42)  # Definir a semente para resultados consistentes
     tamanho_cromossomo = len(pesos_e_valores)
     populacao = gerar_populacao(numero_de_cromossomos, tamanho_cromossomo)
 
@@ -79,11 +73,13 @@ def algoritmo_genetico(pesos_e_valores, peso_maximo, numero_de_cromossomos, gera
 
     # Calcular a média dos pesos dos itens no melhor cromossomo de cada geração
     medias_pesos = []
-    for _, melhor_cromossomo in melhor_de_cada_geracao:
+    saida_formatada = []
+    for melhor_fitness, melhor_cromossomo in melhor_de_cada_geracao:
         peso_total = sum(pesos_e_valores[i][0] for i, gene in enumerate(melhor_cromossomo) if gene == 1)
         medias_pesos.append(peso_total)
+        saida_formatada.append([round(melhor_fitness, 2), melhor_cromossomo])
 
-    return medias_pesos, melhor_de_cada_geracao
+    return medias_pesos, saida_formatada
 
 
 # Exemplo de uso:
@@ -92,7 +88,8 @@ peso_maximo = 100
 numero_de_cromossomos = 150
 geracoes = 50
 
-melhor_de_cada_geracao = algoritmo_genetico(pesos_e_valores, peso_maximo, numero_de_cromossomos, geracoes)
+medias_pesos, melhor_de_cada_geracao = algoritmo_genetico(pesos_e_valores, peso_maximo, numero_de_cromossomos, geracoes)
 
-
-print(melhor_de_cada_geracao)
+# Exibir a saída no formato esperado
+for geracao in melhor_de_cada_geracao[:5]:
+    print(geracao)
